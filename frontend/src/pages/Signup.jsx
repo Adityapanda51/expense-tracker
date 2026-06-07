@@ -2,6 +2,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { authAPI } from '../services/api';
 import { useState } from 'react';
+import homeImg from '../assets/home.png';
 
 export default function Signup() {
   const navigate = useNavigate();
@@ -33,30 +34,33 @@ export default function Signup() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-slate-900 dark:to-slate-800 px-4">
-      <div className="max-w-md w-full">
+    <div 
+      className="min-h-screen flex items-center justify-center px-4 auth-bg bg-cover bg-center bg-no-repeat"
+      style={{ backgroundImage: `linear-gradient(rgba(15, 23, 42, 0.8), rgba(15, 23, 42, 0.8)), url(${homeImg})` }}
+    >
+      <div className="max-w-md w-full animate-in relative z-10">
         {/* Logo Section */}
-        <div className="flex justify-center mb-8">
-          <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-2xl flex items-center justify-center shadow-lg">
-            <span className="text-white text-4xl">💰</span>
+        <div className="flex justify-center mb-10">
+          <div className="w-20 h-20 bg-gradient-to-tr from-blue-600 to-cyan-500 rounded-3xl flex items-center justify-center shadow-2xl shadow-blue-500/30">
+            <span className="text-white text-5xl">💰</span>
           </div>
         </div>
 
         {/* Card */}
-        <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-xl p-8 border border-gray-200 dark:border-slate-700">
-          <h2 className="text-3xl font-bold text-center bg-gradient-to-r from-blue-600 to-cyan-600 dark:from-blue-400 dark:to-cyan-400 bg-clip-text text-transparent mb-8">
-            Get Started
+        <div className="bg-white dark:bg-slate-800 rounded-[2.5rem] shadow-sm p-10 border border-slate-200 dark:border-slate-700">
+          <h2 className="text-4xl font-black text-center bg-gradient-to-r from-blue-600 to-cyan-500 bg-clip-text text-transparent mb-10 tracking-tight">
+            Create Account
           </h2>
 
           {error && (
-            <div className="bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-400 p-3 rounded-lg mb-6 border border-red-200 dark:border-red-800">
-              {error}
+            <div className="bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 p-4 rounded-2xl mb-8 border border-red-100 dark:border-red-900/30 font-bold flex items-center gap-2">
+              <span>⚠️</span> {error}
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-5">
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="space-y-2">
+              <label className="text-xs font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest px-1">
                 Full Name
               </label>
               <input
@@ -65,13 +69,13 @@ export default function Signup() {
                 required
                 value={formData.name}
                 onChange={handleChange}
-                className="w-full px-4 py-2.5 border border-gray-300 dark:border-slate-600 rounded-lg bg-gray-50 dark:bg-slate-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-transparent outline-none transition"
+                className="w-full px-6 py-4 border border-transparent rounded-2xl bg-slate-50 dark:bg-slate-900/50 text-slate-900 dark:text-white focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500/50 outline-none transition-all font-bold"
                 placeholder="John Doe"
               />
             </div>
 
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+            <div className="space-y-2">
+              <label className="text-xs font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest px-1">
                 Email Address
               </label>
               <input
@@ -80,14 +84,14 @@ export default function Signup() {
                 required
                 value={formData.email}
                 onChange={handleChange}
-                className="w-full px-4 py-2.5 border border-gray-300 dark:border-slate-600 rounded-lg bg-gray-50 dark:bg-slate-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-transparent outline-none transition"
+                className="w-full px-6 py-4 border border-transparent rounded-2xl bg-slate-50 dark:bg-slate-900/50 text-slate-900 dark:text-white focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500/50 outline-none transition-all font-bold"
                 placeholder="you@example.com"
               />
             </div>
 
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                Password (min 6 characters)
+            <div className="space-y-2">
+              <label className="text-xs font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest px-1">
+                Password
               </label>
               <input
                 type="password"
@@ -95,27 +99,27 @@ export default function Signup() {
                 required
                 value={formData.password}
                 onChange={handleChange}
-                className="w-full px-4 py-2.5 border border-gray-300 dark:border-slate-600 rounded-lg bg-gray-50 dark:bg-slate-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-transparent outline-none transition"
-                placeholder="••••••"
+                className="w-full px-6 py-4 border border-transparent rounded-2xl bg-slate-50 dark:bg-slate-900/50 text-slate-900 dark:text-white focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500/50 outline-none transition-all font-bold"
+                placeholder="••••••••"
               />
             </div>
 
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white py-2.5 rounded-lg font-semibold transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-md"
+              className="w-full bg-slate-900 dark:bg-white text-white dark:text-slate-900 py-4 rounded-2xl font-black text-sm hover:scale-[1.02] active:scale-95 transition-all shadow-xl shadow-slate-900/10 disabled:opacity-50 cursor-pointer mt-4"
             >
-              {loading ? 'Creating account...' : 'Sign Up'}
+              {loading ? 'Creating Profile...' : 'Get Started'}
             </button>
           </form>
 
-          <p className="mt-6 text-center text-sm text-gray-600 dark:text-gray-400">
+          <p className="mt-8 text-center text-sm font-bold text-slate-500 dark:text-slate-400">
             Already have an account?{' '}
             <button
               onClick={() => navigate('/login')}
-              className="font-semibold text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors"
+              className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors cursor-pointer"
             >
-              Login
+              Sign In
             </button>
           </p>
         </div>

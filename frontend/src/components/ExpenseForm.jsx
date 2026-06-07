@@ -58,21 +58,29 @@ export default function ExpenseForm({ onClose, expenseId }) {
   };
 
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-      <div className="bg-white dark:bg-slate-800 rounded-xl shadow-2xl max-w-md w-full p-8 border border-gray-200 dark:border-slate-700">
-        <h2 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-cyan-600 dark:from-blue-400 dark:to-cyan-400 bg-clip-text text-transparent mb-6">
-          {expenseId ? '✏️ Edit Expense' : '➕ Add Expense'}
-        </h2>
+    <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-md flex items-center justify-center p-4 z-[100] animate-in">
+      <div className="bg-white dark:bg-slate-800 rounded-[2.5rem] shadow-2xl max-w-md w-full p-10 border border-slate-200 dark:border-slate-700">
+        <div className="flex items-center justify-between mb-8">
+          <h2 className="text-3xl font-black tracking-tight bg-gradient-to-r from-blue-600 to-cyan-500 bg-clip-text text-transparent">
+            {expenseId ? 'Edit Entry' : 'New Expense'}
+          </h2>
+          <button 
+            onClick={onClose}
+            className="w-10 h-10 flex items-center justify-center rounded-2xl bg-slate-100 dark:bg-slate-700 text-slate-500 hover:bg-red-50 hover:text-red-500 transition-all cursor-pointer font-bold"
+          >
+            ✕
+          </button>
+        </div>
 
         {error && (
-          <div className="bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-400 p-3 rounded-lg mb-4 border border-red-200 dark:border-red-800 text-sm">
-            {error}
+          <div className="bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 p-4 rounded-2xl mb-6 border border-red-100 dark:border-red-900/30 text-sm font-bold flex items-center gap-2">
+            <span>⚠️</span> {error}
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-5">
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <div className="space-y-2">
+            <label className="text-xs font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest px-1">
               Amount (₹)
             </label>
             <input
@@ -83,31 +91,34 @@ export default function ExpenseForm({ onClose, expenseId }) {
               min="0.01"
               value={formData.amount}
               onChange={handleChange}
-              className="w-full px-4 py-2.5 border border-gray-300 dark:border-slate-600 rounded-lg bg-gray-50 dark:bg-slate-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-transparent outline-none transition"
+              className="w-full px-6 py-4 border border-transparent rounded-2xl bg-slate-50 dark:bg-slate-900/50 text-slate-900 dark:text-white focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500/50 outline-none transition-all font-bold text-lg"
               placeholder="0.00"
             />
           </div>
 
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+          <div className="space-y-2">
+            <label className="text-xs font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest px-1">
               Category
             </label>
-            <select
-              name="category"
-              value={formData.category}
-              onChange={handleChange}
-              className="w-full px-4 py-2.5 border border-gray-300 dark:border-slate-600 rounded-lg bg-gray-50 dark:bg-slate-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-transparent outline-none transition"
-            >
-              {categories.map((cat) => (
-                <option key={cat} value={cat}>
-                  {cat}
-                </option>
-              ))}
-            </select>
+            <div className="relative">
+              <select
+                name="category"
+                value={formData.category}
+                onChange={handleChange}
+                className="w-full px-6 py-4 border border-transparent rounded-2xl bg-slate-50 dark:bg-slate-900/50 text-slate-900 dark:text-white focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500/50 outline-none transition-all font-bold cursor-pointer appearance-none"
+              >
+                {categories.map((cat) => (
+                  <option key={cat} value={cat}>
+                    {cat}
+                  </option>
+                ))}
+              </select>
+              <div className="absolute right-6 top-4 pointer-events-none text-slate-400">▼</div>
+            </div>
           </div>
 
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+          <div className="space-y-2">
+            <label className="text-xs font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest px-1">
               Description
             </label>
             <input
@@ -116,13 +127,13 @@ export default function ExpenseForm({ onClose, expenseId }) {
               required
               value={formData.description}
               onChange={handleChange}
-              className="w-full px-4 py-2.5 border border-gray-300 dark:border-slate-600 rounded-lg bg-gray-50 dark:bg-slate-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-transparent outline-none transition"
-              placeholder="e.g., Lunch at restaurant"
+              className="w-full px-6 py-4 border border-transparent rounded-2xl bg-slate-50 dark:bg-slate-900/50 text-slate-900 dark:text-white focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500/50 outline-none transition-all font-bold"
+              placeholder="What was this for?"
             />
           </div>
 
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+          <div className="space-y-2">
+            <label className="text-xs font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest px-1">
               Date
             </label>
             <input
@@ -131,24 +142,17 @@ export default function ExpenseForm({ onClose, expenseId }) {
               required
               value={formData.date}
               onChange={handleChange}
-              className="w-full px-4 py-2.5 border border-gray-300 dark:border-slate-600 rounded-lg bg-gray-50 dark:bg-slate-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-transparent outline-none transition"
+              className="w-full px-6 py-4 border border-transparent rounded-2xl bg-slate-50 dark:bg-slate-900/50 text-slate-900 dark:text-white focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500/50 outline-none transition-all font-bold cursor-pointer"
             />
           </div>
 
-          <div className="flex gap-3 pt-2">
+          <div className="flex gap-4 pt-4">
             <button
               type="submit"
               disabled={loading}
-              className="flex-1 bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white py-2.5 rounded-lg font-semibold transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex-1 bg-slate-900 dark:bg-white text-white dark:text-slate-900 py-4 rounded-2xl font-black text-sm hover:scale-[1.02] active:scale-95 transition-all shadow-xl shadow-slate-900/10 disabled:opacity-50 cursor-pointer"
             >
-              {loading ? '⏳ Saving...' : '💾 Save'}
-            </button>
-            <button
-              type="button"
-              onClick={onClose}
-              className="flex-1 bg-gray-200 dark:bg-slate-700 text-gray-800 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-slate-600 py-2.5 rounded-lg font-semibold transition-colors"
-            >
-              ✕ Cancel
+              {loading ? 'Processing...' : (expenseId ? 'Update Record' : 'Create Record')}
             </button>
           </div>
         </form>

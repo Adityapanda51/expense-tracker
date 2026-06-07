@@ -1,20 +1,27 @@
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { expenseAPI } from '../services/api';
 import ExpenseForm from '../components/ExpenseForm';
 
 export default function Expenses() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [expenses, setExpenses] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState(null);
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState(searchParams.get('q') || '');
   const [selectedCategory, setSelectedCategory] = useState('');
   const [page, setPage] = useState(1);
   const [total, setTotal] = useState(0);
   const limit = 10;
+
+  // Sync searchTerm with URL query param
+  useEffect(() => {
+    const q = searchParams.get('q') || '';
+    setSearchTerm(q);
+  }, [searchParams]);
 
   const categories = ['Food', 'Transport', 'Entertainment', 'Utilities', 'Healthcare', 'Shopping', 'Education', 'Other'];
 
@@ -67,20 +74,20 @@ export default function Expenses() {
   const totalAmount = expenses.reduce((sum, exp) => sum + exp.amount, 0);
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-10 animate-in">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div>
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-cyan-600 dark:from-blue-400 dark:to-cyan-400 bg-clip-text text-transparent">
-            Expenses
+          <h1 className="text-5xl font-black tracking-tight bg-gradient-to-r from-blue-600 to-cyan-500 bg-clip-text text-transparent">
+            Transactions
           </h1>
-          <p className="text-gray-600 dark:text-gray-400 mt-2">Manage and track all your expenses</p>
+          <p className="text-slate-500 dark:text-slate-400 font-medium mt-2">Manage and monitor your daily spending.</p>
         </div>
         <button
           onClick={() => setShowForm(true)}
-          className="bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white px-6 py-3 rounded-lg font-semibold transition-all shadow-md flex items-center gap-2"
+          className="bg-slate-900 dark:bg-white text-white dark:text-slate-900 px-8 py-4 rounded-2xl font-black text-sm hover:scale-105 active:scale-95 transition-all shadow-xl shadow-slate-900/10 cursor-pointer flex items-center gap-2"
         >
-          + Add Expense
+          <span className="text-xl">+</span> Add New Expense
         </button>
       </div>
 
@@ -92,43 +99,50 @@ export default function Expenses() {
       )}
 
       {error && (
-        <div className="bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 rounded-lg p-4 text-red-700 dark:text-red-400">
-          {error}
+        <div className="bg-red-50 dark:bg-red-900/20 border border-red-100 dark:border-red-900/30 rounded-2xl p-4 text-red-600 dark:text-red-400 font-bold flex items-center gap-3">
+          <span>⚠️</span> {error}
         </div>
       )}
 
       {/* Filters */}
-      <div className="bg-white dark:bg-slate-800 rounded-xl shadow-lg p-6 border border-gray-200 dark:border-slate-700 space-y-4">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-              Search
+      <div className="bg-white dark:bg-slate-800 rounded-3xl shadow-sm p-8 border border-slate-200 dark:border-slate-700">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div className="relative group">
+            <label className="block text-xs font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-3">
+              Search Description
             </label>
-            <input
-              type="text"
-              placeholder="Search by description..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full px-4 py-2.5 border border-gray-300 dark:border-slate-600 rounded-lg bg-gray-50 dark:bg-slate-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-transparent outline-none transition"
-            />
+            <div className="relative">
+              <input
+                type="text"
+                placeholder="What did you buy?"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full bg-slate-50 dark:bg-slate-900/50 border border-transparent focus:border-blue-500/50 rounded-2xl py-3 px-12 text-sm focus:ring-4 focus:ring-blue-500/10 dark:text-white transition-all outline-none"
+              />
+              <div className="absolute left-4 top-3.5 text-lg">🔍</div>
+            </div>
           </div>
 
           <div>
-            <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-              Category
+            <label className="block text-xs font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-3">
+              Filter by Category
             </label>
-            <select
-              value={selectedCategory}
-              onChange={(e) => setSelectedCategory(e.target.value)}
-              className="w-full px-4 py-2.5 border border-gray-300 dark:border-slate-600 rounded-lg bg-gray-50 dark:bg-slate-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-transparent outline-none transition"
-            >
-              <option value="">All Categories</option>
-              {categories.map((cat) => (
-                <option key={cat} value={cat}>
-                  {cat}
-                </option>
-              ))}
-            </select>
+            <div className="relative">
+              <select
+                value={selectedCategory}
+                onChange={(e) => setSelectedCategory(e.target.value)}
+                className="w-full bg-slate-50 dark:bg-slate-900/50 border border-transparent focus:border-blue-500/50 rounded-2xl py-3 px-12 text-sm focus:ring-4 focus:ring-blue-500/10 dark:text-white transition-all outline-none appearance-none cursor-pointer"
+              >
+                <option value="">All Categories</option>
+                {categories.map((cat) => (
+                  <option key={cat} value={cat}>
+                    {cat}
+                  </option>
+                ))}
+              </select>
+              <div className="absolute left-4 top-3.5 text-lg">📁</div>
+              <div className="absolute right-4 top-3.5 pointer-events-none text-slate-400">▼</div>
+            </div>
           </div>
         </div>
       </div>
@@ -138,74 +152,87 @@ export default function Expenses() {
         <div className="flex items-center justify-center h-96">
           <div className="text-center">
             <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
-            <p className="text-gray-500 dark:text-gray-400 mt-4">Loading expenses...</p>
+            <p className="text-slate-500 dark:text-slate-400 mt-6 font-bold">Fetching records...</p>
           </div>
         </div>
       ) : expenses.length === 0 ? (
-        <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-12 text-center">
-          <p className="text-blue-700 dark:text-blue-400 font-semibold text-lg">No expenses found</p>
-          <p className="text-blue-600 dark:text-blue-300 text-sm mt-1">
-            {searchTerm || selectedCategory ? 'Try adjusting your filters' : 'Start by adding your first expense'}
+        <div className="bg-slate-100 dark:bg-slate-800/50 rounded-3xl p-16 text-center border-2 border-dashed border-slate-200 dark:border-slate-700">
+          <div className="text-7xl mb-8">🏜️</div>
+          <h3 className="text-2xl font-black text-slate-900 dark:text-white">Nothing found</h3>
+          <p className="text-slate-500 dark:text-slate-400 mt-3 max-w-sm mx-auto font-medium">
+            {searchTerm || selectedCategory ? "We couldn't find any expenses matching your filters. Try something else!" : "You haven't added any expenses yet."}
           </p>
         </div>
       ) : (
-        <>
-          {/* Summary */}
-          <div className="bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-slate-800 dark:to-slate-700 rounded-xl shadow-lg p-6 border border-blue-200 dark:border-slate-600">
-            <p className="text-gray-600 dark:text-gray-400 text-sm font-medium">Total Amount on this page</p>
-            <p className="text-3xl font-bold text-blue-600 dark:text-blue-400 mt-2">₹{totalAmount.toFixed(2)}</p>
+        <div className="space-y-8">
+          {/* Summary Card */}
+          <div className="bg-gradient-to-br from-blue-600 to-cyan-500 rounded-3xl shadow-xl shadow-blue-500/20 p-8 border border-white/10 card-hover">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-blue-100 text-xs font-black uppercase tracking-widest">Page Summary</p>
+                <p className="text-4xl font-black text-white mt-2">
+                  ₹{totalAmount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                </p>
+              </div>
+              <div className="bg-white/20 p-4 rounded-2xl backdrop-blur-xl">
+                <span className="text-3xl text-white">💰</span>
+              </div>
+            </div>
           </div>
 
-          {/* Expenses Table */}
-          <div className="bg-white dark:bg-slate-800 rounded-xl shadow-lg border border-gray-200 dark:border-slate-700 overflow-hidden">
+          {/* Table Container */}
+          <div className="bg-white dark:bg-slate-800 rounded-3xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
             <div className="overflow-x-auto">
-              <table className="w-full text-sm">
+              <table className="w-full">
                 <thead>
-                  <tr className="bg-gray-50 dark:bg-slate-700 border-b border-gray-200 dark:border-slate-600">
-                    <th className="text-left px-6 py-3 text-gray-700 dark:text-gray-300 font-semibold">Date</th>
-                    <th className="text-left px-6 py-3 text-gray-700 dark:text-gray-300 font-semibold">Description</th>
-                    <th className="text-left px-6 py-3 text-gray-700 dark:text-gray-300 font-semibold">Category</th>
-                    <th className="text-right px-6 py-3 text-gray-700 dark:text-gray-300 font-semibold">Amount</th>
-                    <th className="text-center px-6 py-3 text-gray-700 dark:text-gray-300 font-semibold">Actions</th>
+                  <tr className="bg-slate-50 dark:bg-slate-900/50 border-b border-slate-100 dark:border-slate-700/50">
+                    <th className="text-left px-8 py-5 text-slate-500 dark:text-slate-400 text-xs font-black uppercase tracking-widest">Date</th>
+                    <th className="text-left px-8 py-5 text-slate-500 dark:text-slate-400 text-xs font-black uppercase tracking-widest">Detail</th>
+                    <th className="text-left px-8 py-5 text-slate-500 dark:text-slate-400 text-xs font-black uppercase tracking-widest">Category</th>
+                    <th className="text-right px-8 py-5 text-slate-500 dark:text-slate-400 text-xs font-black uppercase tracking-widest">Amount</th>
+                    <th className="text-center px-8 py-5 text-slate-500 dark:text-slate-400 text-xs font-black uppercase tracking-widest">Actions</th>
                   </tr>
                 </thead>
-                <tbody>
+                <tbody className="divide-y divide-slate-50 dark:divide-slate-700/50">
                   {expenses.map((expense) => (
                     <tr
                       key={expense._id}
-                      className="border-b border-gray-100 dark:border-slate-700 hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors"
+                      className="group hover:bg-slate-50/50 dark:hover:bg-slate-700/30 transition-colors"
                     >
-                      <td className="px-6 py-3 text-gray-900 dark:text-gray-200">
-                        {new Date(expense.date).toLocaleDateString()}
+                      <td className="px-8 py-6 text-slate-500 dark:text-slate-400 text-sm font-bold">
+                        {new Date(expense.date).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}
                       </td>
-                      <td className="px-6 py-3 text-gray-900 dark:text-gray-200 font-medium">
-                        {expense.description}
+                      <td className="px-8 py-6">
+                        <p className="text-slate-900 dark:text-slate-100 font-black">{expense.description}</p>
                       </td>
-                      <td className="px-6 py-3">
-                        <span className="bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300 px-3 py-1 rounded-lg text-xs font-semibold">
+                      <td className="px-8 py-6">
+                        <span className="bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 px-4 py-1.5 rounded-full text-xs font-black">
                           {expense.category}
                         </span>
                       </td>
-                      <td className="px-6 py-3 text-right font-bold text-gray-900 dark:text-gray-200">
-                        ₹{expense.amount.toFixed(2)}
+                      <td className="px-8 py-6 text-right">
+                        <p className="text-slate-900 dark:text-slate-100 font-black text-lg">
+                          ₹{expense.amount.toFixed(2)}
+                        </p>
                       </td>
-                      <td className="px-6 py-3 text-center">
-                        <div className="flex items-center justify-center gap-3">
+                      <td className="px-8 py-6">
+                        <div className="flex items-center justify-center gap-4">
                           <button
                             onClick={() => {
                               setEditingId(expense._id);
                               setShowForm(true);
                             }}
-                            className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-medium transition-colors"
+                            className="bg-slate-100 dark:bg-slate-700 p-2.5 rounded-xl hover:bg-blue-100 dark:hover:bg-blue-900/50 hover:text-blue-600 dark:hover:text-blue-400 transition-all cursor-pointer"
+                            title="Edit"
                           >
-                            ✏️ Edit
+                            ✏️
                           </button>
-                          <span className="text-gray-300 dark:text-gray-600">|</span>
                           <button
                             onClick={() => handleDelete(expense._id)}
-                            className="text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 font-medium transition-colors"
+                            className="bg-slate-100 dark:bg-slate-700 p-2.5 rounded-xl hover:bg-red-100 dark:hover:bg-red-900/50 hover:text-red-600 dark:hover:text-red-400 transition-all cursor-pointer"
+                            title="Delete"
                           >
-                            🗑️ Delete
+                            🗑️
                           </button>
                         </div>
                       </td>
@@ -217,30 +244,28 @@ export default function Expenses() {
           </div>
 
           {/* Pagination */}
-          <div className="flex flex-col sm:flex-row justify-between items-center gap-4 bg-white dark:bg-slate-800 rounded-xl p-6 border border-gray-200 dark:border-slate-700">
-            <span className="text-sm text-gray-600 dark:text-gray-400">
-              Showing <span className="font-semibold">{(page - 1) * limit + 1}</span> to{' '}
-              <span className="font-semibold">{Math.min(page * limit, total)}</span> of{' '}
-              <span className="font-semibold">{total}</span> expenses
+          <div className="flex flex-col sm:flex-row justify-between items-center gap-6 bg-white dark:bg-slate-800 rounded-3xl p-8 border border-slate-200 dark:border-slate-700 shadow-sm">
+            <span className="text-sm font-bold text-slate-500 dark:text-slate-400">
+              Showing <span className="text-slate-900 dark:text-white">{(page - 1) * limit + 1}</span> - <span className="text-slate-900 dark:text-white">{Math.min(page * limit, total)}</span> of <span className="text-slate-900 dark:text-white">{total}</span> records
             </span>
-            <div className="flex gap-2">
+            <div className="flex gap-3">
               <button
                 disabled={page === 1}
                 onClick={() => setPage(page - 1)}
-                className="px-4 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium"
+                className="px-6 py-3 bg-slate-100 dark:bg-slate-700 rounded-xl text-sm font-black text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-600 disabled:opacity-30 disabled:cursor-not-allowed transition-all cursor-pointer"
               >
-                ← Previous
+                Prev
               </button>
               <button
                 disabled={page * limit >= total}
                 onClick={() => setPage(page + 1)}
-                className="px-4 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium"
+                className="px-6 py-3 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-xl text-sm font-black hover:scale-105 active:scale-95 disabled:opacity-30 disabled:cursor-not-allowed transition-all cursor-pointer"
               >
-                Next →
+                Next
               </button>
             </div>
           </div>
-        </>
+        </div>
       )}
     </div>
   );

@@ -4,11 +4,13 @@ import { AuthProvider } from './context/AuthContext';
 import { ThemeProvider } from './context/ThemeContext';
 import { useTheme } from './context/ThemeContext';
 import Navbar from './components/Navbar';
+import Footer from './components/Footer';
 import ProtectedRoute from './components/ProtectedRoute';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
 import Dashboard from './pages/Dashboard';
 import Expenses from './pages/Expenses';
+import Analytics from './pages/Analytics';
 import './App.css';
 
 function AppContent() {
@@ -25,7 +27,7 @@ function AppContent() {
 
   return (
     <div>
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-slate-900 dark:to-slate-800">
+      <div className="min-h-screen" style={{ backgroundColor: 'var(--bg-primary)' }}>
         <Router>
           <Routes>
             <Route path="/login" element={<Login />} />
@@ -36,9 +38,10 @@ function AppContent() {
               element={
                 <ProtectedRoute>
                   <Navbar />
-                  <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                  <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 min-h-[calc(100vh-200px)]">
                     <Dashboard />
                   </div>
+                  <Footer />
                 </ProtectedRoute>
               }
             />
@@ -48,9 +51,23 @@ function AppContent() {
               element={
                 <ProtectedRoute>
                   <Navbar />
-                  <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                  <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 min-h-[calc(100vh-200px)]">
                     <Expenses />
                   </div>
+                  <Footer />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/analytics"
+              element={
+                <ProtectedRoute>
+                  <Navbar />
+                  <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 min-h-[calc(100vh-200px)]">
+                    <Analytics />
+                  </div>
+                  <Footer />
                 </ProtectedRoute>
               }
             />

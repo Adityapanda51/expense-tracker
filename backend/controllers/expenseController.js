@@ -140,18 +140,20 @@ export const searchExpenses = async (req, res) => {
       return res.status(400).json({ success: false, message: 'Search query is required' });
     }
 
-    const expenses = await Expense.find({
+    const searchQuery = {
       userId: req.userId,
-      description: { $regex: q, $options: 'i' },
-    })
+      $or: [
+        { description: { $regex: q, $options: 'i' } },
+        { category: { $regex: q, $options: 'i' } },
+      ],
+    };
+
+    const expenses = await Expense.find(searchQuery)
       .sort({ date: -1 })
       .skip(skip)
       .limit(parseInt(limit));
 
-    const total = await Expense.countDocuments({
-      userId: req.userId,
-      description: { $regex: q, $options: 'i' },
-    });
+    const total = await Expense.countDocuments(searchQuery);
 
     res.json({
       success: true,
