@@ -1,3 +1,4 @@
+import mongoose from 'mongoose';
 import Expense from '../models/Expense.js';
 import { validateExpense } from '../middleware/validation.js';
 
@@ -166,21 +167,22 @@ export const searchExpenses = async (req, res) => {
 
 export const getDashboard = async (req, res) => {
   try {
+    const userId = new mongoose.Types.ObjectId(req.userId);
     const currentDate = new Date();
     const currentMonth = currentDate.getMonth();
     const currentYear = currentDate.getFullYear();
 
     // Total expenses
     const totalExpenses = await Expense.aggregate([
-      { $match: { userId: req.userId } },
+      { $match: { userId } },
       { $group: { _id: null, total: { $sum: '$amount' } } },
     ]);
 
-    // Monthly expenses
+    // Monthly expenses (this month)
     const monthlyExpenses = await Expense.aggregate([
       {
         $match: {
-          userId: req.userId,
+          userId,
           date: {
             $gte: new Date(currentYear, currentMonth, 1),
             $lt: new Date(currentYear, currentMonth + 1, 1),
@@ -190,9 +192,35 @@ export const getDashboard = async (req, res) => {
       { $group: { _id: null, total: { $sum: '$amount' } } },
     ]);
 
+    // Monthly breakdown for last 12 months
+    const monthlyBreakdown = [];
+    for (let i = 11; i >= 0; i--) {
+      const date = new Date(currentYear, currentMonth - i, 1);
+      const nextDate = new Date(currentYear, currentMonth - i + 1, 1);
+      
+      const monthData = await Expense.aggregate([
+        {
+          $match: {
+            userId,
+            date: {
+              $gte: date,
+              $lt: nextDate,
+            },
+          },
+        },
+        { $group: { _id: null, total: { $sum: '$amount' } } },
+      ]);
+
+      const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+      monthlyBreakdown.push({
+        name: monthNames[date.getMonth()],
+        value: monthData[0]?.total || 0,
+      });
+    }
+
     // By category
     const byCategory = await Expense.aggregate([
-      { $match: { userId: req.userId } },
+      { $match: { userId } },
       { $group: { _id: '$category', total: { $sum: '$amount' }, count: { $sum: 1 } } },
     ]);
 
@@ -205,6 +233,7 @@ export const getDashboard = async (req, res) => {
       success: true,
       totalExpenses: totalExpenses[0]?.total || 0,
       monthlyExpenses: monthlyExpenses[0]?.total || 0,
+      monthlyBreakdown,
       byCategory,
       recentExpenses,
     });
