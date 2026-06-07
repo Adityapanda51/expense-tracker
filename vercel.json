@@ -1,8 +1,9 @@
 {
   "version": 2,
-  "buildCommand": "cd frontend && npm run build --silent",
+  "buildCommand": "cd frontend && npm install && npm run build --silent",
 
-  "outputDirectory": "frontend/dist" ,
+
+  "outputDirectory": "frontend/dist",
   "rewrites": [
     {
       "source": "/api/(.*)",
