@@ -24,8 +24,11 @@ app.get('/api/health', (req, res) => {
   res.json({ success: true, message: 'Server is running' });
 });
 
-// Connect to DB
-connectDB();
+// Connect to DB (lazy for serverless to avoid crashing the handler)
+connectDB().catch((err) => {
+  console.error('✗ MongoDB connection failed:', err.message);
+});
+
 
 // Error handling middleware
 app.use((error, req, res, next) => {
