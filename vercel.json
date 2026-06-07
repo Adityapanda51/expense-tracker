@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "buildCommand": "npm install --no-fund --no-audit && npm run build",
+  "buildCommand": "cd frontend && npm install --no-fund --no-audit && npm run build",
   "outputDirectory": "dist",
   "rewrites": [
     {
@@ -16,17 +16,6 @@
       "src": "/api/(.*)",
       "dest": "/api/index.js"
     }
-  ],
-  "experimentalServices": {
-    "frontend": {
-      "root": "frontend",
-      "routePrefix": "/",
-      "framework": "vite"
-    },
-    "backend": {
-      "root": "backend",
-      "routePrefix": "/api"
-    }
-  }
+  ]
 }
 
