@@ -15,10 +15,12 @@ export default function Analytics() {
   const fetchAnalytics = async () => {
     try {
       setLoading(true);
+      setError('');
       const response = await expenseAPI.getDashboard();
       setData(response.data);
     } catch (err) {
       setError('Failed to load analytics data.');
+      console.error('Analytics fetch error:', err);
     } finally {
       setLoading(false);
     }
@@ -32,6 +34,34 @@ export default function Analytics() {
     return (
       <div className="flex items-center justify-center h-96">
         <div className="inline-block animate-spin rounded-full h-16 w-16 border-4 border-blue-500 border-t-transparent"></div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="bg-red-50/50 dark:bg-red-900/10 border border-red-100 dark:border-red-900/30 rounded-[2rem] p-12 text-center">
+        <p className="text-red-600 dark:text-red-400 font-black text-xl mb-4">{error}</p>
+        <button onClick={fetchAnalytics} className="bg-blue-600 text-white px-6 py-2 rounded-xl text-sm font-bold">
+          Try Again
+        </button>
+      </div>
+    );
+  }
+
+  // Graceful fallback structures to absolutely guarantee .map() won't crash
+  const monthlyBreakdown = data?.monthlyBreakdown || [];
+  const byCategory = data?.byCategory || [];
+  const hasData = monthlyBreakdown.length > 0 || byCategory.length > 0;
+
+  if (!data || !hasData) {
+    return (
+      <div className="text-center py-20 bg-white dark:bg-slate-800 rounded-[3rem] border border-slate-200 dark:border-slate-700 p-10">
+        <div className="text-6xl mb-6">📉</div>
+        <h3 className="text-2xl font-black text-slate-900 dark:text-white">No Analytics Available Yet</h3>
+        <p className="text-slate-400 mt-2 max-w-sm mx-auto font-medium">
+          Once you add your first few expenses, detailed financial trend analyses will populate right here.
+        </p>
       </div>
     );
   }
@@ -65,7 +95,7 @@ export default function Analytics() {
             Monthly Trend
           </h3>
           <ResponsiveContainer width="100%" height={300}>
-            <AreaChart data={data.monthlyBreakdown}>
+            <AreaChart data={monthlyBreakdown}>
               <defs>
                 <linearGradient id="colorValue" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3}/>
@@ -93,7 +123,7 @@ export default function Analytics() {
           <ResponsiveContainer width="100%" height={300}>
             <PieChart>
               <Pie
-                data={data.byCategory}
+                data={byCategory}
                 dataKey="total"
                 nameKey="_id"
                 cx="50%"
@@ -103,7 +133,7 @@ export default function Analytics() {
                 paddingAngle={5}
                 stroke="none"
               >
-                {data.byCategory.map((entry, index) => (
+                {byCategory.map((entry, index) => (
                   <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                 ))}
               </Pie>
@@ -120,17 +150,17 @@ export default function Analytics() {
       <div className="bg-slate-900 dark:bg-slate-950 rounded-[3rem] p-10 border border-slate-800 dark:border-slate-800 shadow-2xl shadow-slate-900/40">
         <h3 className="text-3xl font-black mb-10 text-white tracking-tight text-center sm:text-left">Detailed Breakdown</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {data.byCategory.map((cat, idx) => (
-            <div key={cat._id} className="p-8 rounded-[2rem] bg-white/5 border border-white/10 backdrop-blur-sm group hover:bg-white/10 transition-all duration-300">
+          {byCategory.map((cat, idx) => (
+            <div key={cat._id || idx} className="p-8 rounded-[2rem] bg-white/5 border border-white/10 backdrop-blur-sm group hover:bg-white/10 transition-all duration-300">
               <div className="flex justify-between items-start mb-6">
                 <div className="w-14 h-14 rounded-2xl flex items-center justify-center text-3xl shadow-inner transition-transform group-hover:scale-110" style={{ backgroundColor: `${COLORS[idx % COLORS.length]}20`, color: COLORS[idx % COLORS.length] }}>
-                  {idx === 0 ? '🍔' : idx === 1 ? '🚗' : idx === 2 ? '🎮' : '💰'}
+                  {cat._id === 'Food' ? '🍕' : cat._id === 'Transport' ? '🚗' : cat._id === 'Entertainment' ? '🎬' : '✨'}
                 </div>
-                <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500">{cat.count} Items</span>
+                <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500">{(cat.count || 0)} Items</span>
               </div>
-              <h4 className="text-xl font-black text-white mb-2">{cat._id}</h4>
+              <h4 className="text-xl font-black text-white mb-2">{cat._id || 'Other'}</h4>
               <p className="text-3xl font-black tracking-tighter" style={{ color: COLORS[idx % COLORS.length] }}>
-                ₹{cat.total.toLocaleString('en-IN', { minimumFractionDigits: 0 })}<span className="text-lg opacity-40">.{(cat.total % 1).toFixed(2).split('.')[1]}</span>
+                ₹{(cat.total || 0).toLocaleString('en-IN', { minimumFractionDigits: 0 })}<span className="text-lg opacity-40">.{((cat.total || 0) % 1).toFixed(2).split('.')[1]}</span>
               </p>
             </div>
           ))}

@@ -35,8 +35,13 @@ export default function Expenses() {
       } else {
         response = await expenseAPI.getAll({ category: selectedCategory || undefined, page, limit });
       }
-      setExpenses(response.data.expenses);
-      setTotal(response.data.total);
+      
+      // Defensively fallback to an empty array if endpoints return bad metadata shapes
+      const fetchedExpenses = response?.data?.expenses || [];
+      const fetchedTotal = response?.data?.total || 0;
+      
+      setExpenses(fetchedExpenses);
+      setTotal(fetchedTotal);
     } catch (err) {
       setError('Failed to load expenses. Please try again.');
       console.error('Failed to load expenses:', err);
@@ -71,7 +76,13 @@ export default function Expenses() {
     loadExpenses();
   };
 
-  const totalAmount = expenses.reduce((sum, exp) => sum + exp.amount, 0);
+  // Safely accumulate dynamic sums with fallback checks
+  const totalAmount = expenses.reduce((sum, exp) => sum + (exp?.amount || 0), 0);
+
+  // Calculate clean indicators for pagination limits
+  const safeExpensesLength = expenses.length;
+  const itemStartRange = safeExpensesLength > 0 ? (page - 1) * limit + 1 : 0;
+  const itemEndRange = Math.min(page * limit, total);
 
   return (
     <div className="space-y-10 animate-in">
@@ -155,7 +166,7 @@ export default function Expenses() {
             <p className="text-slate-500 dark:text-slate-400 mt-6 font-bold">Fetching records...</p>
           </div>
         </div>
-      ) : expenses.length === 0 ? (
+      ) : safeExpensesLength === 0 ? (
         <div className="bg-slate-100 dark:bg-slate-800/50 rounded-3xl p-16 text-center border-2 border-dashed border-slate-200 dark:border-slate-700">
           <div className="text-7xl mb-8">🏜️</div>
           <h3 className="text-2xl font-black text-slate-900 dark:text-white">Nothing found</h3>
@@ -200,19 +211,21 @@ export default function Expenses() {
                       className="group hover:bg-slate-50/50 dark:hover:bg-slate-700/30 transition-colors"
                     >
                       <td className="px-8 py-6 text-slate-500 dark:text-slate-400 text-sm font-bold">
-                        {new Date(expense.date).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}
+                        {expense.date 
+                          ? new Date(expense.date).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })
+                          : 'Recent'}
                       </td>
                       <td className="px-8 py-6">
-                        <p className="text-slate-900 dark:text-slate-100 font-black">{expense.description}</p>
+                        <p className="text-slate-900 dark:text-slate-100 font-black">{expense.description || 'Unnamed Transaction'}</p>
                       </td>
                       <td className="px-8 py-6">
                         <span className="bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 px-4 py-1.5 rounded-full text-xs font-black">
-                          {expense.category}
+                          {expense.category || 'Other'}
                         </span>
                       </td>
                       <td className="px-8 py-6 text-right">
                         <p className="text-slate-900 dark:text-slate-100 font-black text-lg">
-                          ₹{expense.amount.toFixed(2)}
+                          ₹{(expense.amount || 0).toFixed(2)}
                         </p>
                       </td>
                       <td className="px-8 py-6">
@@ -246,7 +259,7 @@ export default function Expenses() {
           {/* Pagination */}
           <div className="flex flex-col sm:flex-row justify-between items-center gap-6 bg-white dark:bg-slate-800 rounded-3xl p-8 border border-slate-200 dark:border-slate-700 shadow-sm">
             <span className="text-sm font-bold text-slate-500 dark:text-slate-400">
-              Showing <span className="text-slate-900 dark:text-white">{(page - 1) * limit + 1}</span> - <span className="text-slate-900 dark:text-white">{Math.min(page * limit, total)}</span> of <span className="text-slate-900 dark:text-white">{total}</span> records
+              Showing <span className="text-slate-900 dark:text-white">{itemStartRange}</span> - <span className="text-slate-900 dark:text-white">{itemEndRange}</span> of <span className="text-slate-900 dark:text-white">{total}</span> records
             </span>
             <div className="flex gap-3">
               <button

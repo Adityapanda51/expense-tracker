@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { expenseAPI } from '../services/api';
-import { PieChart, Pie, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Cell } from 'recharts';
+import { PieChart, Pie, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 import ExpenseForm from '../components/ExpenseForm';
 
 const COLORS = ['#3b82f6', '#06b6d4', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899', '#f43f5e', '#6366f1'];
@@ -78,6 +78,10 @@ export default function Dashboard() {
 
   const hasExpenses = dashboard.recentExpenses && dashboard.recentExpenses.length > 0;
 
+  // Fallback safe defaults for standard numeric metrics to prevent string format crashes
+  const totalOutflow = dashboard.totalExpenses || 0;
+  const currentMonthOutflow = dashboard.monthlyExpenses || 0;
+
   return (
     <div className="space-y-12 animate-in pb-12">
       {/* Quick Add Modal */}
@@ -115,7 +119,7 @@ export default function Dashboard() {
               Total Outflow
             </h3>
             <p className="text-5xl font-black text-slate-900 dark:text-white tracking-tighter">
-              ₹{dashboard.totalExpenses.toLocaleString('en-IN', { minimumFractionDigits: 0 })}<span className="text-2xl text-slate-400">.{(dashboard.totalExpenses % 1).toFixed(2).split('.')[1]}</span>
+              ₹{totalOutflow.toLocaleString('en-IN', { minimumFractionDigits: 0 })}<span className="text-2xl text-slate-400">.{(totalOutflow % 1).toFixed(2).split('.')[1]}</span>
             </p>
           </div>
         </div>
@@ -128,7 +132,7 @@ export default function Dashboard() {
               Current Month
             </h3>
             <p className="text-5xl font-black text-white dark:text-slate-900 tracking-tighter">
-              ₹{dashboard.monthlyExpenses.toLocaleString('en-IN', { minimumFractionDigits: 0 })}<span className="text-2xl opacity-40">.{(dashboard.monthlyExpenses % 1).toFixed(2).split('.')[1]}</span>
+              ₹{currentMonthOutflow.toLocaleString('en-IN', { minimumFractionDigits: 0 })}<span className="text-2xl opacity-40">.{(currentMonthOutflow % 1).toFixed(2).split('.')[1]}</span>
             </p>
           </div>
         </div>
@@ -176,7 +180,7 @@ export default function Dashboard() {
             </h3>
           </div>
           <ResponsiveContainer width="100%" height={350}>
-            <BarChart data={dashboard.monthlyBreakdown}>
+            <BarChart data={dashboard.monthlyBreakdown || []}>
               <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(148, 163, 184, 0.08)" />
               <XAxis 
                 dataKey="name" 
@@ -193,7 +197,7 @@ export default function Dashboard() {
                     return (
                       <div className="bg-slate-900 dark:bg-white p-5 rounded-2xl shadow-2xl border-none">
                         <p className="text-slate-400 text-[10px] font-black uppercase tracking-widest mb-1">{payload[0].payload.name}</p>
-                        <p className="text-white dark:text-slate-900 text-xl font-black">₹{payload[0].value.toFixed(2)}</p>
+                        <p className="text-white dark:text-slate-900 text-xl font-black">₹{(payload[0].value || 0).toFixed(2)}</p>
                       </div>
                     );
                   }
@@ -227,7 +231,7 @@ export default function Dashboard() {
           <ResponsiveContainer width="100%" height={260}>
             <PieChart>
               <Pie
-                data={dashboard.byCategory}
+                data={dashboard.byCategory || []}
                 dataKey="total"
                 nameKey="_id"
                 cx="50%"
@@ -237,7 +241,7 @@ export default function Dashboard() {
                 paddingAngle={10}
                 stroke="none"
               >
-                {dashboard.byCategory.map((entry, index) => (
+                {(dashboard.byCategory || []).map((entry, index) => (
                   <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                 ))}
               </Pie>
@@ -247,7 +251,7 @@ export default function Dashboard() {
                     return (
                       <div className="bg-slate-900 dark:bg-white p-5 rounded-2xl shadow-2xl border-none">
                         <p className="text-slate-400 text-[10px] font-black uppercase tracking-widest mb-1">{payload[0].name}</p>
-                        <p className="text-white dark:text-slate-900 text-xl font-black">₹{payload[0].value.toFixed(2)}</p>
+                        <p className="text-white dark:text-slate-900 text-xl font-black">₹{(payload[0].value || 0).toFixed(2)}</p>
                       </div>
                     );
                   }
@@ -257,7 +261,7 @@ export default function Dashboard() {
             </PieChart>
           </ResponsiveContainer>
           <div className="mt-8 grid grid-cols-2 gap-4">
-            {dashboard.byCategory.slice(0, 4).map((cat, idx) => (
+            {(dashboard.byCategory || []).slice(0, 4).map((cat, idx) => (
               <div key={cat._id} className="flex items-center gap-3">
                 <div className="w-3 h-3 rounded-full" style={{ backgroundColor: COLORS[idx % COLORS.length] }}></div>
                 <span className="text-xs font-black text-slate-500 uppercase tracking-wider">{cat._id}</span>
@@ -295,9 +299,11 @@ export default function Dashboard() {
                   </div>
                 </div>
                 <div className="text-right">
-                  <p className="text-2xl font-black text-slate-900 dark:text-white tracking-tight">₹{expense.amount.toFixed(2)}</p>
+                  <p className="text-2xl font-black text-slate-900 dark:text-white tracking-tight">₹{(expense.amount || 0).toFixed(2)}</p>
                   <p className="text-slate-400 text-xs font-bold mt-1">
-                    {new Date(expense.date).toLocaleDateString('en-IN', { day: '2-digit', month: 'long' })}
+                    {expense.date 
+                      ? new Date(expense.date).toLocaleDateString('en-IN', { day: '2-digit', month: 'long' }) 
+                      : 'Recent'}
                   </p>
                 </div>
               </div>
