@@ -6,10 +6,6 @@
     {
       "source": "/api/(.*)",
       "destination": "/api/index.js"
-    },
-    {
-      "source": "/(.*)",
-      "destination": "/frontend/dist/index.html"
     }
   ],
   "routes": [
@@ -19,10 +15,6 @@
     {
       "src": "/api/(.*)",
       "dest": "/api/index.js"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/frontend/dist/index.html"
     }
   ]
 }
