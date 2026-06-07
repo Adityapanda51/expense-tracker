@@ -2,7 +2,7 @@
   "version": 2,
   "buildCommand": "npm run build --silent",
 
-  "outputDirectory": "frontend/dist",
+  "outputDirectory": "frontend/dist" ,
   "rewrites": [
     {
       "source": "/api/(.*)",
