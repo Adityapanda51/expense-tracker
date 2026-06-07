@@ -36,12 +36,11 @@ app.use((error, req, res, next) => {
   res.status(500).json({ success: false, message: error.message });
 });
 
-// Standalone server (for local dev)
-if (process.env.NODE_ENV !== 'production') {
-  const PORT = process.env.PORT || 5000;
-  app.listen(PORT, () => {
-    console.log(`✓ Server running on port ${PORT}`);
-  });
-}
+// Standalone server (works on Render and locally)
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => {
+  console.log(`✓ Server running on port ${PORT}`);
+});
 
 export default app;
+
