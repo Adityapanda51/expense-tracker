@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "buildCommand": "cd . && ls && cd frontend && npm install --no-fund --no-audit && npm run build",
+  "buildCommand": "npm install --no-fund --no-audit && npm run build -C frontend",
   "outputDirectory": "frontend/dist",
   "rewrites": [
     {
@@ -29,6 +29,4 @@
     }
   }
 }
-
-
 
